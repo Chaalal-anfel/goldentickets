@@ -3,11 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --golden-400: #d4af37;
+  --golden-400:rgb(181, 150, 47);
+  --golden-100:rgb(255, 239, 185);
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+
+  font-family: "Urbanist", sans-serif;
 }
 
 @layer utilities {
@@ -19,6 +21,9 @@ body {
   }
   .bg-golden-400 {
     background-color: var(--golden-400);
+  }
+  .bg-golden-100 {
+    background-color: var(--golden-100);
   }
   .border-golden-400 {
     border-color: var(--golden-400);

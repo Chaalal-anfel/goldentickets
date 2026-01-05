@@ -63,41 +63,24 @@ const HeroSection = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1.2, delay: 0.8 }}
-              className="block bg-clip-text text-transparent bg-gradient-to-r from-golden-400 to-amber-300"
+              className="block bg-clip-text text-transparent text-golden-400"
             >
               TRAVEL AND TOURISM
             </motion.span>
           </h1>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={floatingAnimation}
-          transition={{ duration: 0.8, delay: 1 }}
-        >
-          <Button
-            variant="outline"
-            className="bg-golden-400/20 text-white border-golden-400 hover:bg-golden-400/30 px-8 py-6 text-sm rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-105"
-          >
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="outline"
+              className="bg-golden-400 text-white border-golden-400 hover:bg-golden-400/90 px-8 py-6 text-sm rounded-full transition-all duration-300"
+            >
             GOLDEN TICKET WE LOVE THE SKY
-          </Button>
-        </motion.div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.5, duration: 1 }}
-        >
-          <motion.div
-            className="w-6 h-10 border-2 border-white rounded-full flex justify-center p-1"
-            animate={{ y: [0, 10, 0] }}
-            transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1.5 }}
-          >
-            <motion.div className="w-1 h-2 bg-white rounded-full" />
+            </Button>
           </motion.div>
-        </motion.div>
+
+
+
       </div>
     </section>
   )

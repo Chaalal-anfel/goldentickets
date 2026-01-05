@@ -45,7 +45,7 @@ export default function RegisterLogin({ initialMode = "login" }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <img src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo%202-EmHNE8CQCqYOkuYkiY3CuT3Wba6FVw.png"
+          <img src="/logo-dark.png"
  alt="Logo"  />
 
           <h2 className="text-3xl font-semibold text-gray-900 mb-4">

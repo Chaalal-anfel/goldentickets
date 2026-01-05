@@ -73,27 +73,27 @@ import DestinationsSection from "./components/DestinationsSection"
 import AboutSections from "./components/about-section"
 import ServicesSection from "./components/services-section"
 import ServicesSlider from "./components/services-slider"
-import TestimonialsSection from "./components/testimonials-section"
 import InteractiveExperience from "./components/interactive-experience"
 import Footer from "./components/footer"
 import CtaSection from "./components/cta-section"
 import TestsimonialsSection from "./components/GoldenTicketExperiences"
 import RegisterLogin from "./components/RegisterLogin"
+import ExclusiveOffers from "./components/ExclusiveOffers"
 
 function HomePage() {
   return (
     <>
-      <Navbar />
-      <HeroSection />
-      <AboutSections />
-      <DestinationsSection />
-      <TestsimonialsSection />
-      <ServicesSection />
-      <ServicesSlider />
-      <TestimonialsSection />
-      <InteractiveExperience />
-      <CtaSection />
-      <Footer />
+        <Navbar />
+        <HeroSection />
+        <AboutSections />
+        <ServicesSlider />
+        <DestinationsSection />
+        <ServicesSection />
+        <TestsimonialsSection />
+        <ExclusiveOffers />
+        <RegisterLogin />
+        <CtaSection />
+        <Footer />
     </>
   )
 }

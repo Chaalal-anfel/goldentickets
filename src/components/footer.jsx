@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, Youtube, Link } from "lucide-react"
+import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, Youtube } from "lucide-react"
 import { motion } from "framer-motion"
 import { useInView } from "react-intersection-observer"
 
@@ -72,9 +72,9 @@ const Footer = () => {
                   whileTap={{ scale: 0.9 }}
                   transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 >
-                  <Link href="#" className="text-gray-400 hover:text-golden-400 transition-colors">
+                  <a href="#" className="text-gray-400 hover:text-golden-400 transition-colors">
                     <Icon className="h-5 w-5" />
-                  </Link>
+                  </a>
                 </motion.div>
               ))}
             </div>
@@ -91,9 +91,9 @@ const Footer = () => {
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                   whileHover={{ x: 5 }}
                 >
-                  <Link href="#" className="hover:text-golden-400 transition-colors">
+                  <a href="#" className="hover:text-golden-400 transition-colors">
                     {item}
-                  </Link>
+                  </a>
                 </motion.li>
               ))}
             </ul>
@@ -117,9 +117,9 @@ const Footer = () => {
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                   whileHover={{ x: 5 }}
                 >
-                  <Link href="#" className="hover:text-golden-400 transition-colors">
+                  <a href="#" className="hover:text-golden-400 transition-colors">
                     {item}
-                  </Link>
+                  </a>
                 </motion.li>
               ))}
             </ul>

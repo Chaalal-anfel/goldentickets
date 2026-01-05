@@ -9,7 +9,7 @@ const CtaSection = () => {
   })
 
   return (
-    <section ref={ref} className="py-20 px-4 bg-gray-100 text-white relative overflow-hidden">
+    <section ref={ref} className="py-20 px-4 bg-lightbrown text-white relative overflow-hidden">
       {/* Animated background elements */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -27,7 +27,7 @@ const CtaSection = () => {
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-3xl md:text-4xl font-light mb-6">Ready to Start Your Journey?</h2>
+          <h2 className="text-3xl text-black md:text-4xl mb-6">Ready to Start Your Journey?</h2>
         </motion.div>
 
         <motion.div
@@ -35,7 +35,7 @@ const CtaSection = () => {
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <p className="text-gray-300 max-w-2xl mx-auto mb-10">
+          <p className="text-gray-500 max-w-2xl mx-auto mb-10">
             Let us help you plan your perfect trip. Contact our travel experts today and embark on an unforgettable
             adventure.
           </p>
@@ -58,7 +58,7 @@ const CtaSection = () => {
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               variant="outline"
-              className="bg-transparent text-white border-white hover:bg-white/10 px-8 py-6 text-sm rounded-full transition-all duration-300"
+              className="bg-transparent text-gray-500 border-golden-400 hover:bg-white/10 px-8 py-6 text-sm rounded-full transition-all duration-300"
             >
               EXPLORE PACKAGES
             </Button>
