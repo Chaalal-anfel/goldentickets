@@ -1,15 +1,14 @@
-"use client"
-
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Eye, EyeOff, Link } from "lucide-react"
-import Navbar from "./Navbar"
+import { Eye, EyeOff, CheckCircle, XCircle } from "lucide-react"
+import { saveRequest, emailExists } from "@/lib/requestsStorage"
 
 export default function RegisterLogin({ initialMode = "login" }) {
   const [mode, setMode] = useState(initialMode)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState({ type: "", text: "" })
 
   const [formData, setFormData] = useState({
     email: "",
@@ -22,31 +21,92 @@ export default function RegisterLogin({ initialMode = "login" }) {
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+    // Clear error message when user types
+    if (message.text) setMessage({ type: "", text: "" })
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    setTimeout(() => {
+    setMessage({ type: "", text: "" })
+
+    try {
+      if (mode === "register") {
+        // Validation for registration
+        if (formData.password !== formData.confirmPassword) {
+          setMessage({ type: "error", text: "Passwords do not match" })
+          setLoading(false)
+          return
+        }
+
+        if (formData.password.length < 6) {
+          setMessage({ type: "error", text: "Password must contain at least 6 characters" })
+          setLoading(false)
+          return
+        }
+
+        // Check if email already exists
+        if (emailExists(formData.email)) {
+          setMessage({ type: "error", text: "This email is already registered" })
+          setLoading(false)
+          return
+        }
+
+        // Save the request
+        const requestData = {
+          email: formData.email,
+          fullName: formData.fullName,
+          phone: formData.phone,
+          // Note: In production, NEVER store passwords in plain text
+          // This is just for demo, but you should use a hash
+        }
+
+        saveRequest(requestData)
+
+        setMessage({ 
+          type: "success", 
+          text: "Your request has been successfully registered! We will contact you soon." 
+        })
+
+        // Reset the form
+        setFormData({
+          email: "",
+          password: "",
+          confirmPassword: "",
+          fullName: "",
+          phone: "",
+        })
+
+        // Switch to login mode after 3 seconds
+        setTimeout(() => {
+          setMode("login")
+          setMessage({ type: "", text: "" })
+        }, 3000)
+      } else {
+        // Login mode - currently just a simulation
+        // In production, you should verify against a database
+        setMessage({ type: "error", text: "Login feature coming soon" })
+      }
+    } catch (error) {
+      setMessage({ type: "error", text: "An error occurred. Please try again." })
+      console.error("Error:", error)
+    } finally {
       setLoading(false)
-      console.log(mode, formData)
-    }, 1500)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
-      <Navbar />
-      <div className="w-full mt-15 max-w-5xl bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
+    <div id="register-login" className="navbar-font min-h-screen bg-white flex items-center justify-center px-4">
+      <div className="w-full mt-15 max-w-5xl bg-white rounded-3xl shadow-l overflow-hidden grid grid-cols-1 md:grid-cols-2 h-auto md:h-[560px]">
 
         {/* ===== SIDE PANEL ===== */}
         <motion.div
-          className={`flex flex-col items-center justify-center p-12 text-center bg-gray-50
+          className={`flex flex-col items-center justify-center p-8 sm:p-10 md:p-12 text-center bg-gray-50 min-h-full overflow-hidden
           ${mode === "login" ? "order-1" : "order-2"}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <img src="/logo-dark.png"
- alt="Logo"  />
+          <img src="/logo-dark.png" alt="Logo"  />
 
           <h2 className="text-3xl font-semibold text-gray-900 mb-4">
             {mode === "login" ? "Welcome back" : "Create your account"}
@@ -60,7 +120,7 @@ export default function RegisterLogin({ initialMode = "login" }) {
 
           <button
             onClick={() => setMode(mode === "login" ? "register" : "login")}
-            className="px-6 py-3 rounded-full border border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white transition"
+            className="px-8 py-3 rounded-full border border-gray-900 text-gray-900 hover:bg-golden-400 hover:text-white transition"
           >
             {mode === "login" ? "Create account" : "Sign in"}
           </button>
@@ -68,8 +128,9 @@ export default function RegisterLogin({ initialMode = "login" }) {
 
         {/* ===== FORM PANEL ===== */}
         <div
-          className={`p-12
+          className={`p-8 sm:p-10 md:p-12 bg-golden-100 navbar-font overflow-y-auto min-h-full flex flex-col justify-center
           ${mode === "login" ? "order-2" : "order-1"}`}
+          style={{ WebkitOverflowScrolling: "touch" }}
         >
           <AnimatePresence mode="wait">
             <motion.div
@@ -78,12 +139,32 @@ export default function RegisterLogin({ initialMode = "login" }) {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: mode === "login" ? -40 : 40 }}
               transition={{ duration: 0.35 }}
+              className="max-w-md w-full mx-auto"
             >
-              <h3 className="text-2xl font-semibold text-gray-900 mb-6">
+              <h3 className="text-2xl font-semibold text-gray-900 mb-2">
                 {mode === "login" ? "Sign in" : "Sign up"}
               </h3>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-2">
+                {/* Message de succès/erreur */}
+                {message.text && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`p-3 rounded-lg flex items-center gap-2 ${
+                      message.type === "success"
+                        ? "bg-green-50 text-green-700 border border-green-200"
+                        : "bg-red-50 text-red-700 border border-red-200"
+                    }`}
+                  >
+                    {message.type === "success" ? (
+                      <CheckCircle size={18} />
+                    ) : (
+                      <XCircle size={18} />
+                    )}
+                    <span className="text-sm">{message.text}</span>
+                  </motion.div>
+                )}
 
                 {mode === "register" && (
                   <>
@@ -140,16 +221,16 @@ export default function RegisterLogin({ initialMode = "login" }) {
                       <input type="checkbox" />
                       Remember me
                     </label>
-                    <Link href="/forgot-password" className="hover:underline">
+                    <a href="/forgot-password" className="hover:underline">
                       Forgot password?
-                    </Link>
+                    </a>
                   </div>
                 )}
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 rounded-full bg-gray-900 text-white font-medium hover:bg-gray-800 transition disabled:opacity-50"
+                  className="w-full py-3 rounded-full bg-golden-400 text-white font-medium hover:bg-golden-400/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading
                     ? "Loading..."

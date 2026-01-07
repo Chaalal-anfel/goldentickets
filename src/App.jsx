@@ -79,6 +79,12 @@ import CtaSection from "./components/cta-section"
 import TestsimonialsSection from "./components/GoldenTicketExperiences"
 import RegisterLogin from "./components/RegisterLogin"
 import ExclusiveOffers from "./components/ExclusiveOffers"
+import LuxuryHero from "./components/LuxuryHero"
+import TestimonialsSection from "./components/testimonials-section"
+import AdminDashboard from "./components/AdminDashboard"
+import AdminLogin from "./components/AdminLogin"
+import ProtectedRoute from "./components/ProtectedRoute"
+import { initAdminCredentials } from "./lib/adminAuth"
 
 function HomePage() {
   return (
@@ -88,9 +94,10 @@ function HomePage() {
         <AboutSections />
         <ServicesSlider />
         <DestinationsSection />
-        <ServicesSection />
         <TestsimonialsSection />
-        <ExclusiveOffers />
+        <ServicesSection />
+        <LuxuryHero/>
+        <TestimonialsSection/>
         <RegisterLogin />
         <CtaSection />
         <Footer />
@@ -98,7 +105,21 @@ function HomePage() {
   )
 }
 
+function AdminPage() {
+  return (
+    <ProtectedRoute>
+      <AdminDashboard />
+      <Footer />
+    </ProtectedRoute>
+  )
+}
+
 function App() {
+  // Initialiser les credentials admin au démarrage
+  useEffect(() => {
+    initAdminCredentials()
+  }, [])
+
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -125,6 +146,10 @@ function App() {
           {/* LOGIN / REGISTER */}
           <Route path="/login" element={<RegisterLogin initialMode="login" />} />
           <Route path="/register" element={<RegisterLogin initialMode="register" />} />
+
+          {/* ADMIN */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </AnimatePresence>
     </Router>

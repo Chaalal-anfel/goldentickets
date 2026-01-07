@@ -10,7 +10,7 @@ const testimonials = [
     comment:
       "Golden Ticket made our honeymoon absolutely perfect! From the flight bookings to the hotel reservations, everything was seamless. Highly recommended!",
     rating: 5,
-    image: "/placeholder.svg?height=100&width=100",
+    image: "/profile1.jpg?height=100&width=100",
   },
   {
     name: "Michael Chen",
@@ -18,15 +18,15 @@ const testimonials = [
     comment:
       "I've been using Golden Ticket for all my business trips for the past 2 years. Their customer service is exceptional and they always find the best deals.",
     rating: 5,
-    image: "/placeholder.svg?height=100&width=100",
+    image: "/profile2.webp?height=100&width=100",
   },
   {
-    name: "Emma Rodriguez",
+    name: "Jhon Rodriguez",
     location: "London, UK",
     comment:
       "Our family vacation was stress-free thanks to Golden Ticket. The tour package they arranged was perfect for our needs and the kids loved every moment!",
     rating: 5,
-    image: "/placeholder.svg?height=100&width=100",
+    image: "/profile3.jpg?height=100&width=100",
   },
 ]
 
@@ -50,7 +50,7 @@ const TestimonialsSection = () => {
   }, [inView])
 
   return (
-    <section ref={ref} className="py-20 px-4 bg-gray-50 overflow-hidden">
+    <section ref={ref} className="py-20 px-4 bg-golden-100 overflow-hidden">
       <div className="container mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

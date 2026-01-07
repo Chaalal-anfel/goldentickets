@@ -108,7 +108,7 @@ const ServicesSlider = () => {
   }
 
   return (
-    <section ref={ref} className="py-20 px-4 bg-black text-white">
+    <section ref={ref} className="py-20 px-4 bg-white text-white">
       <div className="container mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}

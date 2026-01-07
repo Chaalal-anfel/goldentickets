@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react"
 import { Phone, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { motion, AnimatePresence } from "framer-motion"
@@ -11,36 +16,24 @@ const Navbar = () => {
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const [scrolled, setScrolled] = useState(false)
 
-  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 50
-      if (isScrolled !== scrolled) {
-        setScrolled(isScrolled)
-      }
+      setScrolled(window.scrollY > 50)
     }
-
     window.addEventListener("scroll", handleScroll)
-    return () => {
-      window.removeEventListener("scroll", handleScroll)
-    }
-  }, [scrolled])
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   const navItems = [
     { label: "HOME", href: "/" },
-    { label: "ABOUT", href: "/about" },
+    { label: "ABOUT", href: "#about" },
     {
       label: "SERVICES",
-      href: "#",
-      dropdown: [
-        { label: "Flight Booking", href: "/services/flights" },
-        { label: "Hotel Booking", href: "/services/hotels" },
-        { label: "Tour Packages", href: "/services/tours" },
-      ],
+      href: "#services",
+
     },
-    { label: "DESTINATIONS", href: "/destinations" },
-    { label: "CONTACT", href: "/contact" },
-    { label: "LOGIN", href: "/login" },
+    { label: "DESTINATIONS", href: "#destinations" },
+    { label: "CONTACT", href: "#contact" },
   ]
 
   return (
@@ -48,29 +41,35 @@ const Navbar = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "bg-black/80 backdrop-blur-md py-2" : "bg-black/30 backdrop-blur-sm py-4"
+      className={`fixed navbar-font top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-white text-black backdrop-blur-md "
+          : "text-white   "
       }`}
     >
-      <div className="container mx-auto px-4 flex items-center justify-between">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <a href="/" className="flex items-center">
-            <div className="relative h-12 w-48">
-              <img
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo%202-EmHNE8CQCqYOkuYkiY3CuT3Wba6FVw.png"
-                alt="Golden Ticket Logo"
-                className="h-full w-full object-contain"
-              />
-            </div>
-          </a>
-        </motion.div>
-
+      <div className="container mx-auto px-4">
         {isDesktop ? (
-          <div className="flex items-center gap-8">
+          <div className="flex items-center justify-between w-full">
+
+            {/* 1️⃣ LOGO */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="flex-shrink-0"
+            >
+              <a href="/" className="flex items-center">
+                <div className="relative h-20 w-48">
+                  <img
+                    src="/logo-dark.png"
+                    alt="Golden Ticket Logo"
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+              </a>
+            </motion.div>
+
+            {/* 2️⃣ MENU */}
             <motion.ul
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -82,23 +81,44 @@ const Navbar = () => {
                   key={index}
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.1 * index + 0.4 }}
+                  transition={{
+                    duration: 0.3,
+                    delay: 0.1 * index + 0.4,
+                  }}
                 >
                   {item.dropdown ? (
                     <DropdownMenu>
-                      <DropdownMenuTrigger className="text-white hover:text-golden-400 transition-colors flex items-center gap-1">
+                      <DropdownMenuTrigger className="hover:text-golden-400 transition-colors flex items-center gap-1">
                         {item.label}
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
                         {item.dropdown.map((dropdownItem, idx) => (
                           <DropdownMenuItem key={idx} asChild>
-                            <a href={dropdownItem.href}>{dropdownItem.label}</a>
+                            <a href={dropdownItem.href}>
+                              {dropdownItem.label}
+                            </a>
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   ) : (
-                    <a href={item.href} className="text-white hover:text-golden-400 transition-colors">
+                    <a
+                      href={item.href}
+                      className="hover:text-golden-400 transition-colors"
+                      onClick={(e) => {
+                        if (item.href.startsWith("#")) {
+                          e.preventDefault()
+                          const el = document.getElementById(
+                            item.href.replace("#", "")
+                          )
+                          if (el)
+                            el.scrollIntoView({
+                              behavior: "smooth",
+                              block: "start",
+                            })
+                        }
+                      }}
+                    >
                       {item.label}
                     </a>
                   )}
@@ -106,20 +126,39 @@ const Navbar = () => {
               ))}
             </motion.ul>
 
+            {/* 3️⃣ TEL + LOGIN */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.8 }}
-              className="flex items-center gap-4"
+              className="flex items-center gap-4 flex-shrink-0"
             >
-              <a href="tel:+964750454723" className="flex items-center gap-2 text-white">
+              <a
+                href="https://wa.me/+964750454723"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2"
+              >
                 <Phone className="h-4 w-4 text-golden-400" />
                 <span>964 750 454 7323</span>
               </a>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <Button
                   variant="outline"
-                  className="bg-golden-400/20 text-white border-golden-400 hover:bg-golden-400/30 transition-all duration-300"
+                  className="bg-golden-400 text-white border-golden-400 hover:bg-golden-400/90 px-8  text-sm rounded-full transition-all duration-300"
+                  onClick={() => {
+                    const el =
+                      document.getElementById("register-login")
+                    if (el)
+                      el.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                      })
+                  }}
                 >
                   Login
                 </Button>
@@ -127,13 +166,14 @@ const Navbar = () => {
             </motion.div>
           </div>
         ) : (
+          /* 📱 MOBILE (inchangé) */
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-white">
+              <Button variant="ghost" size="icon">
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent className="bg-gray-900 text-white">
+            <SheetContent className="bg-white text-black p-6">
               <AnimatePresence>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -142,13 +182,11 @@ const Navbar = () => {
                   transition={{ duration: 0.3 }}
                   className="flex flex-col gap-6 mt-8"
                 >
-                  <div className="mb-6">
-                    <img
-                      src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo%202-EmHNE8CQCqYOkuYkiY3CuT3Wba6FVw.png"
-                      alt="Golden Ticket Logo"
-                      className="h-10 w-auto object-contain"
-                    />
-                  </div>
+                  <img
+                    src="/logo-dark.png"
+                    alt="Golden Ticket Logo"
+                    className="h-20 w-auto object-contain mb-6"
+                  />
 
                   <ul className="flex flex-col gap-4">
                     {navItems.map((item, index) => (
@@ -156,60 +194,67 @@ const Navbar = () => {
                         key={index}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        transition={{
+                          duration: 0.3,
+                          delay: index * 0.1,
+                        }}
+                        className="border-b border-gray-200"
                       >
-                        {item.dropdown ? (
-                          <div className="flex flex-col gap-2">
-                            <span className="text-golden-400">{item.label}</span>
-                            <ul className="pl-4 flex flex-col gap-2">
-                              {item.dropdown.map((dropdownItem, idx) => (
-                                <motion.li
-                                  key={idx}
-                                  initial={{ opacity: 0, x: -10 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ duration: 0.3, delay: (index + idx) * 0.1 + 0.1 }}
-                                >
-                                  <a
-                                    href={dropdownItem.href}
-                                    className="text-white hover:text-golden-400 transition-colors"
-                                    onClick={() => setOpen(false)}
-                                  >
-                                    {dropdownItem.label}
-                                  </a>
-                                </motion.li>
-                              ))}
-                            </ul>
-                          </div>
-                        ) : (
-                          <a
-                            href={item.href}
-                            className="text-white hover:text-golden-400 transition-colors"
-                            onClick={() => setOpen(false)}
-                          >
-                            {item.label}
-                          </a>
-                        )}
+                        <a
+                          href={item.href}
+                          className="hover:text-golden-400"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            setOpen(false)
+                            setTimeout(() => {
+                              if (item.href.startsWith("#")) {
+                                const el = document.getElementById(
+                                  item.href.replace("#", "")
+                                )
+                                if (el)
+                                  el.scrollIntoView({
+                                    behavior: "smooth",
+                                  })
+                              } else {
+                                window.location.href = item.href
+                              }
+                            }, 200)
+                          }}
+                        >
+                          {item.label}
+                        </a>
                       </motion.li>
                     ))}
                   </ul>
 
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.5 }}
-                    className="flex flex-col gap-4 mt-4"
-                  >
-                    <a href="tel:+964750454723" className="flex items-center gap-2 text-white">
+                  <div className="flex flex-col gap-4 mt-4">
+                    <a
+                      href="https://wa.me/964750454723"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2"
+                    >
                       <Phone className="h-4 w-4 text-golden-400" />
                       <span>964 750 454 7323</span>
                     </a>
+
                     <Button
-                      variant="outline"
-                      className="bg-golden-400/20 text-white border-golden-400 hover:bg-golden-400/30"
+                      className="bg-golden-400 text-white rounded-full py-6"
+                      onClick={() => {
+                        setOpen(false)
+                        setTimeout(() => {
+                          const el =
+                            document.getElementById("register-login")
+                          if (el)
+                            el.scrollIntoView({
+                              behavior: "smooth",
+                            })
+                        }, 200)
+                      }}
                     >
                       Login
                     </Button>
-                  </motion.div>
+                  </div>
                 </motion.div>
               </AnimatePresence>
             </SheetContent>

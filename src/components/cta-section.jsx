@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { useInView } from "react-intersection-observer"
+import { Instagram, Facebook, Phone, X } from "lucide-react"
 
 const CtaSection = () => {
   const [ref, inView] = useInView({
@@ -9,7 +9,10 @@ const CtaSection = () => {
   })
 
   return (
-    <section ref={ref} className="py-20 px-4 bg-lightbrown text-white relative overflow-hidden">
+    <section
+      ref={ref}
+      className="py-20 px-4 bg-golden-100 text-white relative overflow-hidden"
+    >
       {/* Animated background elements */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -22,47 +25,90 @@ const CtaSection = () => {
       </motion.div>
 
       <div className="container mx-auto text-center relative z-10">
+        {/* Title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-3xl text-black md:text-4xl mb-6">Ready to Start Your Journey?</h2>
+          <h2 className="text-3xl text-black md:text-4xl mb-6">
+            Ready to Start Your Journey?
+          </h2>
         </motion.div>
 
+        {/* Description */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <p className="text-gray-500 max-w-2xl mx-auto mb-10">
-            Let us help you plan your perfect trip. Contact our travel experts today and embark on an unforgettable
-            adventure.
+            Let us help you plan your perfect trip. Contact our travel experts
+            today and embark on an unforgettable adventure.
           </p>
         </motion.div>
 
+        {/* Social links */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center"
+          className="flex gap-6 justify-center"
         >
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="outline"
-              className="bg-golden-400 text-white border-golden-400 hover:bg-golden-400/90 px-8 py-6 text-sm rounded-full transition-all duration-300"
-            >
-              CONTACT US NOW
-            </Button>
-          </motion.div>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="outline"
-              className="bg-transparent text-gray-500 border-golden-400 hover:bg-white/10 px-8 py-6 text-sm rounded-full transition-all duration-300"
-            >
-              EXPLORE PACKAGES
-            </Button>
-          </motion.div>
+          {/* WhatsApp */}
+          <motion.a
+            href="https://wa.me/213XXXXXXXXX"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-14 h-14 flex items-center justify-center
+                       bg-golden-400 text-white rounded-full
+                       hover:bg-golden-400/90 transition-all duration-300"
+          >
+            <Phone className="w-6 h-6" />
+          </motion.a>
+
+          {/* Instagram */}
+          <motion.a
+            href="https://instagram.com/yourpage"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-14 h-14 flex items-center justify-center
+                       bg-golden-400 text-white rounded-full
+                       hover:bg-golden-400/90 transition-all duration-300"
+          >
+            <Instagram className="w-6 h-6" />
+          </motion.a>
+
+          {/* Facebook */}
+          <motion.a
+            href="https://facebook.com/yourpage"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-14 h-14 flex items-center justify-center
+                       bg-golden-400 text-white rounded-full
+                       hover:bg-golden-400/90 transition-all duration-300"
+          >
+            <Facebook className="w-6 h-6" />
+          </motion.a>
+
+          <motion.a
+            href="https://x.com/yourpage"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-14 h-14 flex items-center justify-center
+                       bg-golden-400 text-white rounded-full
+                       hover:bg-golden-400/90 transition-all duration-300"
+          >
+            <X className="w-6 h-6" />
+          </motion.a>
         </motion.div>
       </div>
     </section>

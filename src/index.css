@@ -3,13 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --golden-400:rgb(181, 150, 47);
-  --golden-100:rgb(255, 239, 185);
+  --golden-400:#C9A063;
+  --golden-100:#F7F3EE;
 }
 
 body {
 
-  font-family: "Urbanist", sans-serif;
+  font-family: "Gilda Display", serif;
+
 }
 
 @layer utilities {
@@ -59,6 +60,14 @@ body {
     --radius: 0.5rem;
   }
 }
+@layer components {
+  .navbar-font {
+    font-family: "Urbanist", sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+  }
+}
+
 
 @layer base {
   * {
@@ -67,4 +76,18 @@ body {
   body {
     @apply bg-white text-gray-900;
   }
+}
+
+/* Adding custom animation for rotating text */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
 }

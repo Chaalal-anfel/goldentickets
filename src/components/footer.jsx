@@ -51,32 +51,19 @@ const Footer = () => {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12"
         >
           <motion.div variants={childVariant}>
-            <div className="mb-6">
-              <div className="relative h-12 w-48">
+            <div className="flex flex-col mb-6 gap-4">
+              <div className="h-32 w-48">
                 <img
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/logo%202-EmHNE8CQCqYOkuYkiY3CuT3Wba6FVw.png"
+                  src="logo-white.png"
                   alt="Golden Ticket Logo"
-                  className="object-contain"
+                  className="h-full w-full object-contain"
                 />
               </div>
-            </div>
-            <p className="mb-6">
-              Your one-stop solution for all your travel needs. We specialize in creating memorable travel experiences
-              tailored to your preferences.
-            </p>
-            <div className="flex space-x-4">
-              {[Facebook, Twitter, Instagram, Youtube].map((Icon, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ y: -5, scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  <a href="#" className="text-gray-400 hover:text-golden-400 transition-colors">
-                    <Icon className="h-5 w-5" />
-                  </a>
-                </motion.div>
-              ))}
+
+              <p className="mb-0 text-gray-300 max-w-xs">
+                Your one-stop solution for all your travel needs. We specialize in creating memorable travel experiences
+                tailored to your preferences.
+              </p>
             </div>
           </motion.div>
 

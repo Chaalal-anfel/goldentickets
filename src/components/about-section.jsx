@@ -16,7 +16,7 @@ const AboutSection = () => {
   const bottomMapY = useTransform(scrollY, [0, 1000], [0, 50])
 
   return (
-    <section ref={ref} className="py-20 px-4 bg-white overflow-hidden">
+    <section id="about" ref={ref} className="py-20 px-4 bg-golden-100 overflow-hidden">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div

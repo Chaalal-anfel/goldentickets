@@ -353,7 +353,7 @@ const DestinationsSection = () => {
   }
 
   return (
-    <section ref={ref} className="py-20 bg-gray-50">
+    <section id="destinations" ref={ref} className="py-20 bg-golden-100">
       {/* Full-width Tabs */}
       <div className="flex w-full border-b border-golden-400/30">
         {tabs.map((tab) => (
