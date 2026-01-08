@@ -17,6 +17,11 @@ import {
   updateRequestStatus, 
   deleteRequest 
 } from "@/lib/requestsStorage"
+import { 
+  getAllMessages, 
+  updateMessageStatus, 
+  deleteMessage 
+} from "@/lib/messagesStorage"
 import { logoutAdmin, getAdminSession } from "@/lib/adminAuth"
 
 const STATUS_OPTIONS = ["tous", "non traité", "en cours", "traité", "rejeté"]
@@ -29,8 +34,11 @@ const STATUS_COLORS = {
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
+  const [activeTab, setActiveTab] = useState("requests") // "requests" or "messages"
   const [requests, setRequests] = useState([])
   const [filteredRequests, setFilteredRequests] = useState([])
+  const [messages, setMessages] = useState([])
+  const [filteredMessages, setFilteredMessages] = useState([])
   const [statusFilter, setStatusFilter] = useState("tous")
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(false)
@@ -41,18 +49,23 @@ export default function AdminDashboard() {
     setAdminSession(getAdminSession())
   }, [])
 
-  // Charger les demandes au montage et rafraîchir périodiquement
+  // Charger les demandes et messages au montage et rafraîchir périodiquement
   useEffect(() => {
     loadRequests()
+    loadMessages()
     // Rafraîchir toutes les 5 secondes
-    const interval = setInterval(loadRequests, 5000)
+    const interval = setInterval(() => {
+      loadRequests()
+      loadMessages()
+    }, 5000)
     return () => clearInterval(interval)
   }, [])
 
-  // Filtrer les demandes quand le filtre ou la recherche change
+  // Filtrer les demandes et messages quand le filtre ou la recherche change
   useEffect(() => {
     filterRequests()
-  }, [requests, statusFilter, searchTerm])
+    filterMessages()
+  }, [requests, messages, statusFilter, searchTerm])
 
   const loadRequests = () => {
     const allRequests = getAllRequests()
@@ -63,6 +76,15 @@ export default function AdminDashboard() {
     setRequests(sorted)
   }
 
+  const loadMessages = () => {
+    const allMessages = getAllMessages()
+    // Trier par date de création (plus récent en premier)
+    const sorted = allMessages.sort((a, b) => 
+      new Date(b.createdAt) - new Date(a.createdAt)
+    )
+    setMessages(sorted)
+  }
+
   const filterRequests = () => {
     let filtered = [...requests]
 
@@ -71,25 +93,53 @@ export default function AdminDashboard() {
       filtered = filtered.filter((req) => req.status === statusFilter)
     }
 
-    // Filtrer par recherche (nom, email, téléphone)
+    // Filtrer par recherche (nom, email, téléphone, adresse)
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
       filtered = filtered.filter(
         (req) =>
           req.fullName?.toLowerCase().includes(term) ||
           req.email?.toLowerCase().includes(term) ||
-          req.phone?.toLowerCase().includes(term)
+          req.phone?.toLowerCase().includes(term) ||
+          req.companyAddress?.toLowerCase().includes(term)
       )
     }
 
     setFilteredRequests(filtered)
   }
 
-  const handleStatusChange = async (requestId, newStatus) => {
+  const filterMessages = () => {
+    let filtered = [...messages]
+
+    // Filtrer par statut
+    if (statusFilter !== "tous") {
+      filtered = filtered.filter((msg) => msg.status === statusFilter)
+    }
+
+    // Filtrer par recherche (email, sujet, message)
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase()
+      filtered = filtered.filter(
+        (msg) =>
+          msg.email?.toLowerCase().includes(term) ||
+          msg.subject?.toLowerCase().includes(term) ||
+          msg.message?.toLowerCase().includes(term)
+      )
+    }
+
+    setFilteredMessages(filtered)
+  }
+
+  const handleStatusChange = async (id, newStatus, type = "request") => {
     setLoading(true)
     try {
-      updateRequestStatus(requestId, newStatus)
-      loadRequests() // Recharger les demandes
+      if (type === "request") {
+        updateRequestStatus(id, newStatus)
+        loadRequests()
+      } else {
+        updateMessageStatus(id, newStatus)
+        loadMessages()
+      }
     } catch (error) {
       console.error("Erreur lors de la mise à jour:", error)
       alert("Erreur lors de la mise à jour du statut")
@@ -98,15 +148,20 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleDelete = async (requestId) => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer cette demande ?")) {
+  const handleDelete = async (id, type = "request") => {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer ce${type === "request" ? "tte demande" : " message"} ?`)) {
       return
     }
 
     setLoading(true)
     try {
-      deleteRequest(requestId)
-      loadRequests()
+      if (type === "request") {
+        deleteRequest(id)
+        loadRequests()
+      } else {
+        deleteMessage(id)
+        loadMessages()
+      }
     } catch (error) {
       console.error("Erreur lors de la suppression:", error)
       alert("Erreur lors de la suppression")
@@ -127,8 +182,9 @@ export default function AdminDashboard() {
   }
 
   const getStatusCount = (status) => {
-    if (status === "tous") return requests.length
-    return requests.filter((req) => req.status === status).length
+    const data = activeTab === "requests" ? requests : messages
+    if (status === "tous") return data.length
+    return data.filter((item) => item.status === status).length
   }
 
   const handleLogout = () => {
@@ -150,13 +206,13 @@ export default function AdminDashboard() {
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3">
               <Shield className="text-golden-400" size={40} />
-              Tableau de Bord - Demandes
+              Admin Dashboard
             </h1>
             <p className="text-gray-600">
-              Gérez les demandes d'inscription reçues
+              Manage registration requests and contact messages
               {adminSession && (
                 <span className="ml-2 text-sm text-gray-500">
-                  • Connecté en tant que <strong>{adminSession.username}</strong>
+                  • Logged in as <strong>{adminSession.username}</strong>
                 </span>
               )}
             </p>
@@ -205,14 +261,21 @@ export default function AdminDashboard() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="Rechercher par nom, email ou téléphone..."
+              placeholder={
+                activeTab === "requests"
+                  ? "Search by name, email, phone or company address..."
+                  : "Search by email, subject or message..."
+              }
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-golden-400"
             />
           </div>
           <button
-            onClick={loadRequests}
+            onClick={() => {
+              loadRequests()
+              loadMessages()
+            }}
             disabled={loading}
             className="px-4 py-2 bg-golden-400 text-white rounded-lg hover:bg-golden-400/90 transition disabled:opacity-50 flex items-center gap-2"
           >
@@ -221,109 +284,258 @@ export default function AdminDashboard() {
           </button>
         </motion.div>
 
-        {/* Tableau des demandes */}
+        {/* Tabs */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex gap-4 mb-6 border-b border-gray-200"
+        >
+          <button
+            onClick={() => {
+              setActiveTab("requests")
+              setStatusFilter("tous")
+              setSearchTerm("")
+            }}
+            className={`px-6 py-3 font-medium transition-colors border-b-2 ${
+              activeTab === "requests"
+                ? "border-golden-400 text-golden-400"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Registration Requests ({requests.length})
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab("messages")
+              setStatusFilter("tous")
+              setSearchTerm("")
+            }}
+            className={`px-6 py-3 font-medium transition-colors border-b-2 ${
+              activeTab === "messages"
+                ? "border-golden-400 text-golden-400"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Contact Messages ({messages.length})
+          </button>
+        </motion.div>
+
+        {/* Tableau des demandes ou messages */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
+          key={activeTab}
           className="bg-white rounded-lg shadow-sm overflow-hidden"
         >
-          {filteredRequests.length === 0 ? (
-            <div className="p-12 text-center text-gray-500">
-              <Clock size={48} className="mx-auto mb-4 text-gray-300" />
-              <p className="text-lg">
-                {searchTerm || statusFilter !== "tous"
-                  ? "Aucune demande ne correspond à vos critères"
-                  : "Aucune demande pour le moment"}
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Nom complet
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Téléphone
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Statut
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredRequests.map((request, index) => (
-                    <motion.tr
-                      key={request.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatDate(request.createdAt)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {request.fullName || "N/A"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {request.email}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {request.phone || "N/A"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <select
-                          value={request.status}
-                          onChange={(e) =>
-                            handleStatusChange(request.id, e.target.value)
-                          }
-                          disabled={loading}
-                          className={`px-3 py-1 rounded-full text-xs font-medium border-2 ${
-                            STATUS_COLORS[request.status] || STATUS_COLORS["non traité"]
-                          } focus:outline-none focus:ring-2 focus:ring-golden-400 cursor-pointer disabled:opacity-50`}
-                        >
-                          {STATUS_OPTIONS.slice(1).map((status) => (
-                            <option key={status} value={status}>
-                              {status}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleDelete(request.id)}
+          {activeTab === "requests" ? (
+            // Tableau des demandes d'inscription
+            filteredRequests.length === 0 ? (
+              <div className="p-12 text-center text-gray-500">
+                <Clock size={48} className="mx-auto mb-4 text-gray-300" />
+                <p className="text-lg">
+                  {searchTerm || statusFilter !== "tous"
+                    ? "Aucune demande ne correspond à vos critères"
+                    : "Aucune demande pour le moment"}
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Nom complet
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Email
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Téléphone
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Company Address
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Statut
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredRequests.map((request, index) => (
+                      <motion.tr
+                        key={request.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {formatDate(request.createdAt)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {request.fullName || "N/A"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {request.email}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {request.phone || "N/A"}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600 max-w-xs">
+                          <div className="truncate" title={request.companyAddress || "N/A"}>
+                            {request.companyAddress || "N/A"}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <select
+                            value={request.status}
+                            onChange={(e) =>
+                              handleStatusChange(request.id, e.target.value, "request")
+                            }
                             disabled={loading}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-50"
-                            title="Supprimer"
+                            className={`px-3 py-1 rounded-full text-xs font-medium border-2 ${
+                              STATUS_COLORS[request.status] || STATUS_COLORS["non traité"]
+                            } focus:outline-none focus:ring-2 focus:ring-golden-400 cursor-pointer disabled:opacity-50`}
                           >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                            {STATUS_OPTIONS.slice(1).map((status) => (
+                              <option key={status} value={status}>
+                                {status}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleDelete(request.id, "request")}
+                              disabled={loading}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-50"
+                              title="Supprimer"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
+          ) : (
+            // Tableau des messages de contact
+            filteredMessages.length === 0 ? (
+              <div className="p-12 text-center text-gray-500">
+                <Clock size={48} className="mx-auto mb-4 text-gray-300" />
+                <p className="text-lg">
+                  {searchTerm || statusFilter !== "tous"
+                    ? "Aucun message ne correspond à vos critères"
+                    : "Aucun message pour le moment"}
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Email
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Subject
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Message
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Statut
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredMessages.map((message, index) => (
+                      <motion.tr
+                        key={message.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {formatDate(message.createdAt)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {message.email}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
+                          <div className="truncate" title={message.subject || "N/A"}>
+                            {message.subject || "N/A"}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600 max-w-md">
+                          <div className="truncate" title={message.message || "N/A"}>
+                            {message.message || "N/A"}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <select
+                            value={message.status}
+                            onChange={(e) =>
+                              handleStatusChange(message.id, e.target.value, "message")
+                            }
+                            disabled={loading}
+                            className={`px-3 py-1 rounded-full text-xs font-medium border-2 ${
+                              STATUS_COLORS[message.status] || STATUS_COLORS["non traité"]
+                            } focus:outline-none focus:ring-2 focus:ring-golden-400 cursor-pointer disabled:opacity-50`}
+                          >
+                            {STATUS_OPTIONS.slice(1).map((status) => (
+                              <option key={status} value={status}>
+                                {status}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleDelete(message.id, "message")}
+                              disabled={loading}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-50"
+                              title="Supprimer"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
           )}
         </motion.div>
 
         {/* Footer avec informations */}
-        {filteredRequests.length > 0 && (
+        {((activeTab === "requests" && filteredRequests.length > 0) ||
+          (activeTab === "messages" && filteredMessages.length > 0)) && (
           <div className="mt-4 text-sm text-gray-500 text-center">
-            Affichage de {filteredRequests.length} demande(s) sur {requests.length} total
+            Affichage de{" "}
+            {activeTab === "requests" ? filteredRequests.length : filteredMessages.length}{" "}
+            {activeTab === "requests" ? "demande(s)" : "message(s)"} sur{" "}
+            {activeTab === "requests" ? requests.length : messages.length} total
           </div>
         )}
       </div>

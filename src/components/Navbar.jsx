@@ -61,7 +61,7 @@ const Navbar = () => {
               <a href="/" className="flex items-center">
                 <div className="relative h-20 w-48">
                   <img
-                    src="/logo-dark.png"
+                    src="/logo-dark.jpeg"
                     alt="Golden Ticket Logo"
                     className="h-full w-full object-contain"
                   />
@@ -183,7 +183,7 @@ const Navbar = () => {
                   className="flex flex-col gap-6 mt-8"
                 >
                   <img
-                    src="/logo-dark.png"
+                    src="/logo-dark.jpeg"
                     alt="Golden Ticket Logo"
                     className="h-20 w-auto object-contain mb-6"
                   />

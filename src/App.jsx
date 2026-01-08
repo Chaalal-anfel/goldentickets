@@ -81,6 +81,7 @@ import RegisterLogin from "./components/RegisterLogin"
 import ExclusiveOffers from "./components/ExclusiveOffers"
 import LuxuryHero from "./components/LuxuryHero"
 import TestimonialsSection from "./components/testimonials-section"
+import LeadershipSection from "./components/LeadershipSection"
 import AdminDashboard from "./components/AdminDashboard"
 import AdminLogin from "./components/AdminLogin"
 import ProtectedRoute from "./components/ProtectedRoute"
@@ -97,6 +98,7 @@ function HomePage() {
         <TestsimonialsSection />
         <ServicesSection />
         <LuxuryHero/>
+        <LeadershipSection />
         <TestimonialsSection/>
         <RegisterLogin />
         <CtaSection />
